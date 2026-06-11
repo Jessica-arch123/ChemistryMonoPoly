@@ -2,162 +2,141 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChemistryPoly by YAN</title>
+    <title>ChemistryPoly Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #6c5ce7; --accent: #00d2d3; --bg: #0f172a; --card: rgba(255, 255, 255, 0.1); --gold: #feca57; --red: #ff7675; }
-        body { font-family: 'Outfit', sans-serif; background: var(--bg); color: white; display: flex; justify-content: center; padding: 20px; margin: 0; min-height: 100vh; }
-        .game-container { background: #1e293b; width: 100%; max-width: 800px; border-radius: 40px; padding: 30px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); }
-        .screen { display: none; }
+        :root { --primary: #6c5ce7; --accent: #00d2d3; --bg: #0f172a; --card: rgba(255, 255, 255, 0.1); --gold: #feca57; }
+        body { font-family: 'Outfit', sans-serif; background: var(--bg); color: white; margin: 0; padding: 20px; }
+        .screen { display: none; max-width: 900px; margin: auto; }
         .active { display: block; }
-        .board-track { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin: 20px 0; }
-        .tile { background: var(--card); padding: 10px; border-radius: 10px; font-size: 0.65rem; text-align: center; height: 60px; display: flex; align-items: center; justify-content: center; }
-        .btn { width: 100%; padding: 15px; border: none; border-radius: 20px; cursor: pointer; font-weight: 900; background: var(--accent); margin-top: 10px; }
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 100; }
-        .card { background: #1e293b; padding: 30px; border-radius: 30px; width: 90%; max-width: 500px; border: 2px solid var(--primary); }
-        .btn-mcq { width: 100%; padding: 12px; margin: 5px 0; border-radius: 10px; background: rgba(255,255,255,0.05); color: white; border: 1px solid #444; cursor: pointer; text-align: left; }
-        .char-card { background: var(--card); padding: 20px; border-radius: 20px; cursor: pointer; transition: 0.3s; }
+        .char-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
+        .char-card { background: var(--card); padding: 30px; border-radius: 20px; cursor: pointer; border: 4px solid transparent; text-align: center; }
+        .glowing { border-color: var(--accent); box-shadow: 0 0 20px var(--accent); }
+        .board { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; height: 500px; margin: 20px 0; }
+        .tile { border: 1px solid #334155; font-size: 0.6rem; display: flex; align-items: center; justify-content: center; background: #1e293b; border-radius: 5px; }
+        .dashboard { display: flex; justify-content: space-around; background: #334155; padding: 15px; border-radius: 15px; }
+        .modal { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); display:none; align-items:center; justify-content:center; }
+        .card { background:#1e293b; padding:30px; border-radius:20px; width:90%; max-width:500px; border:2px solid var(--primary); }
     </style>
 </head>
 <body>
 
-<div class="game-container">
-    <div id="screen-lobby" class="screen active">
-        <h1>ChemistryPoly</h1>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:20px;">
-            <div id="card0" onclick="togglePlayer(0)" class="char-card">🐱 CAT</div>
-            <div id="card1" onclick="togglePlayer(1)" class="char-card">🐶 DOG</div>
-            <div id="card2" onclick="togglePlayer(2)" class="char-card">🦊 FOX</div>
-            <div id="card3" onclick="togglePlayer(3)" class="char-card">🐰 BUN</div>
-        </div>
-        <button class="btn" id="startBtn" disabled onclick="startGame()">START GAME</button>
+<div id="screen1" class="screen active">
+    <h1>ChemistryPoly Instructions</h1>
+    <p>1. Select your characters (glows when active).<br>2. Reach the highest points by answering questions correctly.<br>3. Land on tiles, roll dice, and outsmart your opponents!</p>
+    <div class="char-grid">
+        <div id="card0" class="char-card" onclick="select(0)">🐱<br>CAT</div>
+        <div id="card1" class="char-card" onclick="select(1)">🐶<br>DOG</div>
+        <div id="card2" class="char-card" onclick="select(2)">🦊<br>FOX</div>
+        <div id="card3" class="char-card" onclick="select(3)">🐰<br>BUN</div>
     </div>
-
-    <div id="screen-game" class="screen">
-        <h2 id="statusLabel"></h2>
-        <div id="board" class="board-track"></div>
-        <div id="dashboard"></div>
-        <button class="btn" onclick="rollDice()">ROLL DICE</button>
-    </div>
+    <button id="startBtn" disabled onclick="startGame()" style="width:100%; padding:20px; margin-top:20px;">START GAME</button>
 </div>
 
-<div class="modal" id="qOverlay"><div class="card"><h3 id="qHeader">TASK</h3><p id="qText"></p><div id="optionsArea"></div></div></div>
+<div id="screen2" class="screen">
+    <div class="dashboard" id="dash"></div>
+    <div class="board" id="board"></div>
+    <h2 id="turnLabel" style="text-align:center;"></h2>
+    <button onclick="rollDice()" style="width:100%; padding:20px; background:var(--gold); border:none; font-weight:900;">ROLL DICE</button>
+</div>
+
+<div class="modal" id="qOverlay"><div class="card"><h3 id="qMod"></h3><p id="qText"></p><div id="qOptions"></div></div></div>
 
 <script>
     const questions = [
-        { id:1, mod: "ANALYTICAL", text: "Closeness of a measured value to the true value is:", options: ["Precision", "Accuracy", "Linearity", "Selectivity"], correct: "Accuracy" },
-        { id:2, mod:"ANALYTICAL", text:"Reproducibility of measurements in a series is:", options:["Accuracy","Precision","Sensitivity","Speed"], correct:"Precision" },
-        { id:3, mod:"ANALYTICAL", text:"A primary standard must be:", options:["Highly hygroscopic","Highly pure and stable","Liquid","Volatile"], correct:"Highly pure and stable" },
-        { id:4, mod:"ANALYTICAL", text:"Accuracy is usually expressed as:", options:["Standard Deviation","Percent Error","Variance","Range"], correct:"Percent Error" },
-        { id:5, mod:"ANALYTICAL", text:"Precision is usually expressed as:", options:["Percent Error","Relative Standard Deviation (RSD)","Mean","Sensitivity"], correct:"Relative Standard Deviation (RSD)" },
-        { id:6, mod:"ANALYTICAL", text:"Error causing data to scatter symmetrically around the mean:", options:["Systematic Error","Random Error","Constant Error","Blunder"], correct:"Random Error" },
-        { id:7, mod:"ANALYTICAL", text:"Error that results in a bias in measurement:", options:["Random Error","Systematic Error","Gross Error","Indeterminate Error"], correct:"Systematic Error" },
-        { id:8, mod:"ANALYTICAL", text:"The smallest concentration detectable by an instrument:", options:["Accuracy","Limit of Detection (LOD)","Precision","Sensitivity"], correct:"Limit of Detection (LOD)" },
-        { id:9, mod:"TITRATIONS", text:"Indicator used in the Mohr Method for Cl-?", options:["Ferric Ion","Potassium Chromate","Fluorescein","Methyl Red"], correct:"Potassium Chromate" },
-        { id:10, mod:"TITRATIONS", text:"Volhard Method uses which type of titration?", options:["Direct","Back","Complexometric","Redox"], correct:"Back" },
-        { id:11, mod:"TITRATIONS", text:"Common indicator for EDTA at pH 10?", options:["Murexide","Erio-T","Starch","Litmus"], correct:"Erio-T" },
-        { id:12, mod:"TITRATIONS", text:"EDTA is a ___ ligand:", options:["Bidentate","Tetradentate","Hexadentate","Monodentate"], correct:"Hexadentate" },
-        { id:13, mod:"TITRATIONS", text:"Starch is the indicator for:", options:["KMnO4","I2 (Iodine)","EDTA","AgNO3"], correct:"I2 (Iodine)" },
-        { id:14, mod:"TITRATIONS", text:"KMnO4 titration is categorized as:", options:["Self-indicating","Requires Starch","Requires Erio-T","Uses Phenolphthalein"], correct:"Self-indicating" },
-        { id:15, mod:"TITRATIONS", text:"Standardizing EDTA usually requires a primary standard like:", options:["NaOH","CaCO3","HCl","KMnO4"], correct:"CaCO3" },
-        { id:16, mod:"TITRATIONS", text:"Titrant used in Volhard back-titration:", options:["AgNO3","KSCN","NaOH","EDTA"], correct:"KSCN" },
-        { id:17, mod:"CONC.", text:"Definition of Molarity (M)?", options:["Moles/L solution","Moles/kg solvent","Grams/L","Weight %"], correct:"Moles/L solution" },
-        { id:18, mod:"CONC.", text:"Definition of Molality (m)?", options:["Moles/L solution","Moles/kg solvent","Mole fraction","Grams/mL"], correct:"Moles/kg solvent" },
-        { id:19, mod:"CONC.", text:"Mole fraction formula is:", options:["n_A / Total moles","n_A / kg solvent","Weight / Volume","Density"], correct:"n_A / Total moles" },
-        { id:20, mod:"CONC.", text:"A 1 ppm solution contains 1 mg of solute per ___ of solution:", options:["Liter (L)","Kilogram (kg)","Milliliter (mL)","Gram (g)"], correct:"Liter (L)" },
-        { id:21, mod:"CONC.", text:"Weight/Volume (w/v) concentration is affected by:", options:["Concentration","Temperature","Gravity","Atmospheric Pressure"], correct:"Temperature" },
-        { id:22, mod:"CONC.", text:"Grams of NaOH (MW:40) needed for 500 mL of 0.1 M?", options:["1 g","2 g","4 g","0.5 g"], correct:"2 g" },
-        { id:23, mod:"CONC.", text:"Laboratory dilution formula:", options:["PV = nRT","C1V1 = C2V2","pH = -log[H+]","n = m / MW"], correct:"C1V1 = C2V2" },
-        { id:24, mod:"CONC.", text:"Density is defined as:", options:["Mass / Volume","Volume / Mass","Moles / L","Grams / Equivalent"], correct:"Mass / Volume" },
-        { id:25, mod:"ACID-BASE", text:"Henderson-Hasselbalch equation:", options:["pH = pKa + log([A-]/[HA])","pH = pKa - log([A-]/[HA])","pH = -log[H+]","pKa = -log Ka"], correct:"pH = pKa + log([A-]/[HA])" },
-        { id:26, mod:"ACID-BASE", text:"Maximum buffering capacity occurs when:", options:["pH = 7","pH = pKa","pOH = pKb","pH = 1"], correct:"pH = pKa" },
-        { id:27, mod:"ACID-BASE", text:"According to Bronsted-Lowry, a base is a:", options:["Proton donor","Proton acceptor","Electron donor","Lewis acid"], correct:"Proton acceptor" },
-        { id:28, mod:"ACID-BASE", text:"According to Bronsted-Lowry, an acid is a:", options:["Proton donor","Proton acceptor","Electron donor","Electron acceptor"], correct:"Proton donor" },
-        { id:29, mod:"ACID-BASE", text:"At 25°C, pH + pOH always equals:", options:["7","14","1","10"], correct:"14" },
-        { id:30, mod:"ACID-BASE", text:"Which is a strong acid?", options:["CH3COOH","HCl","NH3","H2CO3"], correct:"HCl" },
-        { id:31, mod:"ACID-BASE", text:"A buffer consists of a weak acid and its:", options:["Strong base","Conjugate base","Solvent","Indicator"], correct:"Conjugate base" },
-        { id:32, mod:"ACID-BASE", text:"Ka measures the strength of:", options:["Strong bases","Weak acids","Solubility","Ionic bonds"], correct:"Weak acids" },
-        { id:33, mod:"VSEPR", text:"Shape of NH3 according to VSEPR theory?", options:["Trigonal Planar","Trigonal Pyramidal","Tetrahedral","Bent"], correct:"Trigonal Pyramidal" },
-        { id:34, mod:"VSEPR", text:"Molecular shape of PCl5?", options:["Octahedral","Trigonal Bipyramidal","Tetrahedral","Linear"], correct:"Trigonal Bipyramidal" },
-        { id:35, mod:"VSEPR", text:"Shape of H2O according to VSEPR?", options:["Linear","Bent","Tetrahedral","Trigonal Planar"], correct:"Bent" },
-        { id:36, mod:"VSEPR", text:"Geometry of CH4?", options:["Square Planar","Tetrahedral","Octahedral","Pyramidal"], correct:"Tetrahedral" },
-        { id:37, mod:"VSEPR", text:"Bond angle in linear CO2?", options:["90","109.5","120","180"], correct:"180" },
-        { id:38, mod:"VSEPR", text:"Shape of SF6?", options:["Octahedral","Hexagonal","Square Planar","Trigonal Bipyramidal"], correct:"Octahedral" },
-        { id:39, mod:"VSEPR", text:"Bond angle in tetrahedral CH4?", options:["180","120","109.5","90"], correct:"109.5" },
-        { id:40, mod:"VSEPR", text:"Shape of BF3?", options:["Trigonal Planar","Trigonal Pyramidal","Bent","Linear"], correct:"Trigonal Planar" },
-        { id:41, mod:"BONDING", text:"Hybridization of C in Methane (CH4)?", options:["sp","sp2","sp3","dsp2"], correct:"sp3" },
-        { id:42, mod:"BONDING", text:"Hybridization of C in Ethene (C2H4)?", options:["sp","sp2","sp3","sp3d"], correct:"sp2" },
-        { id:43, mod:"BONDING", text:"Bond order for O2+ in MO theory?", options:["1.5","2.0","2.5","3.0"], correct:"2.5" },
-        { id:44, mod:"BONDING", text:"Paramagnetism of Oxygen is explained by:", options:["VSEPR","Valence Bond Theory","Molecular Orbital Theory","Lewis Theory"], correct:"Molecular Orbital Theory" },
-        { id:45, mod:"BONDING", text:"Bond order for N2 in MO theory?", options:["1.0","2.0","3.0","2.5"], correct:"3.0" },
-        { id:46, mod:"BONDING", text:"Hybridization of C in Ethyne (C2H2)?", options:["sp","sp2","sp3","dsp2"], correct:"sp" },
-        { id:47, mod:"BONDING", text:"A sigma bond (σ) is formed by ___ overlap:", options:["Side-to-side","End-to-end","Parallel","Perpendicular"], correct:"End-to-end" },
-        { id:48, mod:"BONDING", text:"A pi bond (π) is formed by ___ overlap:", options:["End-to-end","Side-to-side","Axial","Direct"], correct:"Side-to-side" }
+        // Analytical
+        { mod:"ANALYTICAL", text:"Closeness of a measured value to the true value is:", options:["Precision","Accuracy","Linearity","Selectivity"], correct:"Accuracy" },
+        { mod:"ANALYTICAL", text:"Reproducibility of measurements is:", options:["Accuracy","Precision","Sensitivity","Speed"], correct:"Precision" },
+        { mod:"ANALYTICAL", text:"A primary standard must be:", options:["Hygroscopic","Pure and stable","Liquid","Volatile"], correct:"Pure and stable" },
+        { mod:"ANALYTICAL", text:"Accuracy is expressed as:", options:["Std Dev","Percent Error","Variance","Range"], correct:"Percent Error" },
+        { mod:"ANALYTICAL", text:"Precision is expressed as:", options:["Percent Error","RSD","Mean","Sensitivity"], correct:"RSD" },
+        { mod:"ANALYTICAL", text:"Scatter symmetrically around the mean:", options:["Systematic","Random","Constant","Blunder"], correct:"Random" },
+        { mod:"ANALYTICAL", text:"Result in bias:", options:["Random","Systematic","Gross","Indeterminate"], correct:"Systematic" },
+        { mod:"ANALYTICAL", text:"Smallest concentration detectable:", options:["Accuracy","LOD","Precision","Sensitivity"], correct:"LOD" },
+        // Titrations
+        { mod:"TITRATIONS", text:"Mohr Method indicator for Cl-?", options:["Ferric","K2CrO4","Fluorescein","Methyl Red"], correct:"K2CrO4" },
+        { mod:"TITRATIONS", text:"Volhard Method uses:", options:["Direct","Back","Complexo","Redox"], correct:"Back" },
+        { mod:"TITRATIONS", text:"Indicator for EDTA at pH 10?", options:["Murexide","Erio-T","Starch","Litmus"], correct:"Erio-T" },
+        { mod:"TITRATIONS", text:"EDTA is a ___ ligand:", options:["Bidentate","Tetradentate","Hexadentate","Monodentate"], correct:"Hexadentate" },
+        { mod:"TITRATIONS", text:"Starch is indicator for:", options:["KMnO4","I2","EDTA","AgNO3"], correct:"I2" },
+        { mod:"TITRATIONS", text:"KMnO4 is:", options:["Self-indicating","Requires Starch","Requires Erio-T","Phenolphthalein"], correct:"Self-indicating" },
+        { mod:"TITRATIONS", text:"Standardizing EDTA requires:", options:["NaOH","CaCO3","HCl","KMnO4"], correct:"CaCO3" },
+        { mod:"TITRATIONS", text:"Titrant in Volhard:", options:["AgNO3","KSCN","NaOH","EDTA"], correct:"KSCN" },
+        // Concentrations
+        { mod:"CONC.", text:"Molarity (M) is:", options:["Moles/L","Moles/kg","Grams/L","Weight %"], correct:"Moles/L" },
+        { mod:"CONC.", text:"Molality (m) is:", options:["Moles/L","Moles/kg","Mole fraction","Grams/mL"], correct:"Moles/kg" },
+        { mod:"CONC.", text:"Mole fraction formula:", options:["nA / Total","nA / kg","Wt/Vol","Density"], correct:"nA / Total" },
+        { mod:"CONC.", text:"1 ppm is mg of solute per:", options:["Liter","Kilogram","Milliliter","Gram"], correct:"Liter" },
+        { mod:"CONC.", text:"Weight/Volume affected by:", options:["Concentration","Temperature","Gravity","Pressure"], correct:"Temperature" },
+        { mod:"CONC.", text:"Grams of NaOH (MW:40) for 500mL of 0.1M:", options:["1g","2g","4g","0.5g"], correct:"2g" },
+        { mod:"CONC.", text:"Dilution formula:", options:["PV=nRT","C1V1=C2V2","pH=-log","n=m/MW"], correct:"C1V1=C2V2" },
+        { mod:"CONC.", text:"Density:", options:["Mass/Vol","Vol/Mass","Moles/L","Grams/Eq"], correct:"Mass/Vol" },
+        // Acid-Base
+        { mod:"ACID-BASE", text:"Henderson-Hasselbalch:", options:["pH=pKa+log([A-]/[HA])","pH=pKa-log([A-]/[HA])","pH=-log[H+]","pKa=-log Ka"], correct:"pH=pKa+log([A-]/[HA])" },
+        { mod:"ACID-BASE", text:"Buffering max at:", options:["pH=7","pH=pKa","pOH=pKb","pH=1"], correct:"pH=pKa" },
+        { mod:"ACID-BASE", text:"Bronsted Base:", options:["Proton donor","Proton acceptor","Electron donor","Lewis acid"], correct:"Proton acceptor" },
+        { mod:"ACID-BASE", text:"Bronsted Acid:", options:["Proton donor","Proton acceptor","Electron donor","Acceptor"], correct:"Proton donor" },
+        { mod:"ACID-BASE", text:"pH + pOH at 25°C:", options:["7","14","1","10"], correct:"14" },
+        { mod:"ACID-BASE", text:"Strong acid:", options:["CH3COOH","HCl","NH3","H2CO3"], correct:"HCl" },
+        { mod:"ACID-BASE", text:"Buffer is:", options:["Strong base","Conjugate base","Solvent","Indicator"], correct:"Conjugate base" },
+        { mod:"ACID-BASE", text:"Ka measures:", options:["Strong bases","Weak acids","Solubility","Ionic bonds"], correct:"Weak acids" },
+        // VSEPR
+        { mod:"VSEPR", text:"NH3 shape:", options:["Trigonal Planar","Trigonal Pyramidal","Tetrahedral","Bent"], correct:"Trigonal Pyramidal" },
+        { mod:"VSEPR", text:"PCl5 shape:", options:["Octahedral","Trigonal Bipyramidal","Tetrahedral","Linear"], correct:"Trigonal Bipyramidal" },
+        { mod:"VSEPR", text:"H2O shape:", options:["Linear","Bent","Tetrahedral","Trigonal Planar"], correct:"Bent" },
+        { mod:"VSEPR", text:"CH4 geometry:", options:["Square Planar","Tetrahedral","Octahedral","Pyramidal"], correct:"Tetrahedral" },
+        { mod:"VSEPR", text:"CO2 angle:", options:["90","109.5","120","180"], correct:"180" },
+        { mod:"VSEPR", text:"SF6 shape:", options:["Octahedral","Hexagonal","Square Planar","Trigonal Bipyramidal"], correct:"Octahedral" },
+        { mod:"VSEPR", text:"CH4 angle:", options:["180","120","109.5","90"], correct:"109.5" },
+        { mod:"VSEPR", text:"BF3 shape:", options:["Trigonal Planar","Trigonal Pyramidal","Bent","Linear"], correct:"Trigonal Planar" },
+        // Bonding
+        { mod:"BONDING", text:"Hybridization of C in Methane?", options:["sp","sp2","sp3","dsp2"], correct:"sp3" },
+        { mod:"BONDING", text:"Hybridization of C in Ethene?", options:["sp","sp2","sp3","sp3d"], correct:"sp2" },
+        { mod:"BONDING", text:"Bond order for O2+?", options:["1.5","2.0","2.5","3.0"], correct:"2.5" },
+        { mod:"BONDING", text:"Oxygen paramagnetism by:", options:["VSEPR","Valence Bond","MO Theory","Lewis"], correct:"MO Theory" },
+        { mod:"BONDING", text:"Bond order for N2:", options:["1.0","2.0","3.0","2.5"], correct:"3.0" },
+        { mod:"BONDING", text:"Hybridization of C in Ethyne?", options:["sp","sp2","sp3","dsp2"], correct:"sp" },
+        { mod:"BONDING", text:"Sigma bond overlap:", options:["Side-to-side","End-to-end","Parallel","Perpendicular"], correct:"End-to-end" },
+        { mod:"BONDING", text:"Pi bond overlap:", options:["End-to-end","Side-to-side","Axial","Direct"], correct:"Side-to-side" }
     ];
 
-    const tileNames = ["GO", "ANALYTICAL", "BONDING", "TITRATIONS", "CONC.", "ACID-BASE", "VSEPR", "TITRATIONS", "ACID-BASE", "ANALYTICAL", "VSEPR", "CONC.", "TITRATIONS", "ANALYTICAL", "VSEPR", "CONC.", "ACID-BASE", "CONC.", "BONDING", "ACID-BASE", "BONDING", "VSEPR"];
-    
-    let players = [], turn = 0, rolling = false;
-    let chars = [{id:0, icon:'🐱', n:'CAT', a:false},{id:1, icon:'🐶', n:'DOG', a:false},{id:2, icon:'🦊', n:'FOX', a:false},{id:3, icon:'🐰', n:'BUN', a:false}];
+    let selected = [false,false,false,false], players = [], turn = 0;
 
-    function togglePlayer(id){
-        chars[id].a = !chars[id].a;
-        document.getElementById('card'+id).style.borderColor = chars[id].a ? 'cyan' : 'transparent';
-        document.getElementById('startBtn').disabled = chars.filter(c=>c.a).length < 1;
+    function select(i) {
+        selected[i] = !selected[i];
+        document.getElementById('card'+i).classList.toggle('glowing');
+        document.getElementById('startBtn').disabled = !selected.includes(true);
     }
 
-    function startGame(){
-        players = chars.filter(c=>c.a).map(c=>({...c, pos:0, pts:100}));
-        document.getElementById('screen-lobby').style.display = 'none';
-        document.getElementById('screen-game').classList.add('active');
-        initBoard();
+    function startGame() {
+        players = selected.map((s,i) => s ? {id:i, pts:100, pos:0, name:['CAT','DOG','FOX','BUN'][i]} : null).filter(p => p);
+        document.getElementById('screen1').style.display = 'none';
+        document.getElementById('screen2').style.display = 'block';
+        for(let i=0; i<36; i++) document.getElementById('board').innerHTML += `<div class="tile">${i}</div>`;
+        updateDash();
     }
 
-    function initBoard(){
-        const b = document.getElementById('board');
-        tileNames.forEach((name, i) => {
-            const t = document.createElement('div'); 
-            t.className = 'tile'; t.innerText = name;
-            b.appendChild(t);
-        });
-        updateStatus();
+    function updateDash() {
+        document.getElementById('dash').innerHTML = players.map(p => `<div>${p.name}: ${p.pts} pts</div>`).join('');
+        document.getElementById('turnLabel').innerText = players[turn].name + "'s Turn";
     }
 
-    function rollDice(){
-        if(rolling) return;
-        rolling = true;
+    function rollDice() {
         let r = Math.floor(Math.random()*6)+1;
-        players[turn].pos = (players[turn].pos + r) % 22;
-        showQuestion();
-    }
-
-    function showQuestion(){
-        // Get a random question
-        const q = questions[Math.floor(Math.random()*questions.length)];
+        players[turn].pos = (players[turn].pos + r) % 36;
+        let q = questions[Math.floor(Math.random()*questions.length)];
         document.getElementById('qOverlay').style.display = 'flex';
-        document.getElementById('qHeader').innerText = q.mod;
+        document.getElementById('qMod').innerText = q.mod;
         document.getElementById('qText').innerText = q.text;
-        const area = document.getElementById('optionsArea'); area.innerHTML = '';
-        q.options.forEach(opt => {
-            const b = document.createElement('button'); b.className = 'btn-mcq'; b.innerText = opt;
-            b.onclick = () => {
-                if(opt === q.correct) players[turn].pts += 20;
-                else players[turn].pts -= 10;
-                endTurn();
-            };
-            area.appendChild(b);
-        });
+        document.getElementById('qOptions').innerHTML = q.options.map(o => `<button style="width:100%; margin:5px 0; padding:10px;" onclick="check('${o}', '${q.correct}')">${o}</button>`).join('');
     }
 
-    function endTurn(){
+    function check(ans, cor) {
+        if(ans === cor) players[turn].pts += 20; else players[turn].pts -= 10;
         document.getElementById('qOverlay').style.display = 'none';
-        turn = (turn+1) % players.length;
-        rolling = false;
-        updateStatus();
+        turn = (turn + 1) % players.length;
+        updateDash();
     }
-
-    function updateStatus(){ document.getElementById('statusLabel').innerText = players[turn].icon + "'s Turn (" + players[turn].pts + " pts)"; }
 </script>
 </body>
 </html>
