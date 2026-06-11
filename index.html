@@ -124,8 +124,135 @@
         players = chars.filter(c=>c.a).map(c=>({...c, pos:0, pts:30, skip:false, rounds:1}));
         document.getElementById('screen-lobby').style.display = 'none';
         document.getElementById('screen-game').classList.add('active');
-        // Initialize board...
+
     }
+    function initBoard(){
+        const b = document.getElementById('board');
+        let idxs = [0,1,2,3,4,5, 21,-1,-1,-1,-1,6, 20,-1,-1,-1,-1,7, 19,-1,-1,-1,-1,8, 18,-1,-1,-1,-1,9, 17,16,15,14,13,12];
+        idxs.forEach((idx, i) => {
+            if(idx === -1) return;
+            const t = document.createElement('div'); t.id = 't'+idx; t.className = 'tile';
+            if(tileNames[idx] === "AUDIT") t.style.background = "var(--red)";
+            t.innerHTML = `${tileNames[idx]}`;
+            t.style.gridRow = Math.floor(i/6)+1; t.style.gridColumn = (i%6)+1;
+            b.appendChild(t);
+        });
+        const d = document.getElementById('dashboard');
+        players.forEach((p, i) => {
+            const pc = document.createElement('div'); pc.id = 'piece'+p.id; pc.className = 'player-piece'; pc.innerText = p.icon;
+            document.getElementById('piecesContainer').appendChild(pc);
+            const st = document.createElement('div'); st.id = 'stat'+i; st.className = 'p-stat'+(i===0?' active-turn':'');
+            st.innerHTML = `<span>${p.icon}</span><br><b id="pts${i}">${p.pts}</b>`;
+            d.appendChild(st);
+        });
+        updateStatus(); updatePieces();
+    }
+
+    function rollDice(){
+        if(rolling) return;
+        let p = players[turn];
+        if(p.skip){ p.skip = false; alert("Turn Skipped!"); endTurn(); return; }
+        rolling = true; play('roll');
+        const dice = document.getElementById('dice'); dice.classList.add('rolling');
+        const r = Math.floor(Math.random()*6)+1;
+        setTimeout(()=>{
+            dice.classList.remove('rolling');
+            const rots = { 1: "rotateX(0deg) rotateY(0deg)", 2: "rotateY(180deg)", 3: "rotateY(-90deg)", 4: "rotateY(90deg)", 5: "rotateX(-90deg)", 6: "rotateX(90deg)" };
+            dice.style.transform = rots[r];
+            setTimeout(()=>{ movePlayer(r); rolling=false; }, 600);
+        }, 1000);
+    }
+
+    function movePlayer(s){
+        let p = players[turn]; let old = p.pos; p.pos = (p.pos + s) % 22;
+        if(p.pos < old) { 
+            p.pts += 50; p.rounds++;
+            document.getElementById('roundAlert').style.display='block'; 
+            setTimeout(()=>document.getElementById('roundAlert').style.display='none', 1500); 
+            if(p.rounds > 3) checkEndGame();
+        }
+        updatePieces(); setTimeout(()=>handleLanding(p), 600);
+    }
+
+    function handleLanding(p){
+        if(p.pos === 0) { endTurn(); return; }
+        if(tileNames[p.pos] === "LAB BONUS") { p.pts += 40; alert("LAB BONUS! +40 PTS"); endTurn(); return; }
+        if(tileNames[p.pos] === "AUDIT") { p.pts -= 20; alert("Audit Penalty! -20 PTS"); endTurn(); return; }
+        if(owners[p.pos] !== undefined && owners[p.pos] !== turn){
+            let rent = 25; // Base rent
+            let o = players[owners[p.pos]]; p.pts -= rent; o.pts += rent;
+            alert(`Rent Paid: ${rent} PTS to ${o.icon}`); endTurn();
+        } else { showQuestion(p.pos, p); }
+    }
+
+    function showQuestion(tid, p){
+        let pool = questions.filter(q => !usedQsGlobal.includes(q.id));
+        if(pool.length === 0) { usedQsGlobal = []; pool = questions; }
+        const q = pool[Math.floor(Math.random()*pool.length)];
+        usedQsGlobal.push(q.id);
+        document.getElementById('qOverlay').style.display = 'flex';
+        document.getElementById('qText').innerHTML = `<small>${q.mod}</small><br>${q.text}`;
+        const area = document.getElementById('optionsArea'); area.innerHTML = '';
+        q.options.forEach(opt => {
+            const b = document.createElement('button'); b.className = 'btn-mcq'; b.innerHTML = opt;
+            b.onclick = () => {
+                if(opt === q.correct){
+                    play('correct'); p.pts += 20; updateStats();
+                    if(owners[tid] === undefined && p.pts >= q.price) showBuyMenu(tid, p, q.price);
+                    else endTurn();
+                } else { play('wrong'); p.pts -= 30; updateStats(); endTurn(); }
+            };
+            area.appendChild(b);
+        });
+    }
+
+    function showBuyMenu(tid, p, price){
+        const area = document.getElementById('optionsArea');
+        document.getElementById('qText').innerHTML = `CORRECT! Spend ${price} PTS to buy ${tileNames[tid]}?`;
+        area.innerHTML = '';
+        const b = document.createElement('button'); b.className = 'btn'; b.style.background = 'var(--gold)'; b.style.color='#000'; b.innerText = `PURCHASE`;
+        b.onclick = () => {
+            p.pts -= price; owners[tid] = turn;
+            const t = document.getElementById('t'+tid);
+            t.style.background = ownerCols[p.id]; t.innerHTML += `<span class="owner-tag">${p.icon}</span>`;
+            endTurn();
+        };
+        const s = document.createElement('button'); s.className = 'btn'; s.style.background='#4b5563'; s.innerText = "PASS";
+        s.onclick = endTurn;
+        area.appendChild(b); area.appendChild(s);
+    }
+
+    function buySabotage(){
+        let p = players[turn]; if(p.pts < 50) return; p.pts -= 50;
+        let ts = players.filter((_,i)=>i!==turn);
+        if(ts.length > 0){
+            let t = ts[Math.floor(Math.random()*ts.length)];
+            t.skip = true; alert(`Chance! ${t.icon} skip next turn.`);
+        }
+        updateStats();
+    }
+
+    function endTurn(){
+        document.getElementById('qOverlay').style.display = 'none';
+        updateStats(); document.getElementById('stat'+turn).classList.remove('active-turn');
+        turn = (turn+1)%players.length;
+        document.getElementById('stat'+turn).classList.add('active-turn');
+        updateStatus();
+    }
+    function updateStats(){ players.forEach((p,i)=>document.getElementById('pts'+i).innerText = p.pts); }
+    function updateStatus(){ document.getElementById('statusLabel').innerText = players[turn].icon + "'S TURN"; }
+    function updatePieces(){
+        players.forEach((p, i) => {
+            const t = document.getElementById('t'+p.pos); const pc = document.getElementById('piece'+p.id);
+            if(t && pc){ pc.style.left = (t.offsetLeft + (i%2)*10 + 2)+'px'; pc.style.top = (t.offsetTop + Math.floor(i/2)*10 + 2)+'px'; }
+        });
+    }
+    function checkEndGame(){
+        let win = [...players].sort((a,b) => b.pts - a.pts)[0];
+        alert(`GAME OVER! ${win.icon} is the Top Researcher with ${win.pts} PTS!`);
+        location.reload();
+    }
+
 </script>
 </body>
 </html>
