@@ -278,27 +278,27 @@ const questions = [
             <button class="btn" style="background:var(--primary)" onclick="processResult(${isCorrect}, ${tid}, ${JSON.stringify(p).replace(/"/g, "'")}, ${q.price})">NEXT</button>
         `;
     }
+    function processResult(isCorrect, tid, price) {
+    document.getElementById('qHeader').style.color = 'white';
+    let p = players[turn]; // This grabs the REAL player object
 
-    function processResult(isCorrect, tid, p, price) {
-        // Reset header color
-        document.getElementById('qHeader').style.color = 'white';
-        
-        if (isCorrect) {
-            play('correct');
-            p.pts += 20;
-            updateStats();
-            // If they are correct and have enough points, show buy menu
-            if (owners[tid] === undefined && p.pts >= price) {
-                showBuyMenu(tid, p, price);
-            } else {
-                endTurn();
-            }
+    if (isCorrect) {
+        play('correct');
+        p.pts += 20; // This updates the REAL player object
+        updateStats(); // Now this function will see the correct new value
+
+        if (owners[tid] === undefined && p.pts >= price) {
+            showBuyMenu(tid, p, price);
         } else {
-            play('wrong');
-            p.pts -= 30;
-            updateStats();
             endTurn();
         }
+    } else {
+        play('wrong');
+        p.pts -= 30; // Updates the REAL player object
+        updateStats();
+        endTurn();
+    }
+}
     }
     function showBuyMenu(tid, p, price){
         const area = document.getElementById('optionsArea');
