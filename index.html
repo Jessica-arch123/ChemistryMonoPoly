@@ -97,6 +97,8 @@
     const sounds = { roll: new Audio('https://www.soundjay.com/buttons/button-27.mp3'), correct: new Audio('https://www.soundjay.com/buttons/button-3.mp3'), wrong: new Audio('https://www.soundjay.com/buttons/button-10.mp3') };
     function play(t){ sounds[t].currentTime=0; sounds[t].play().catch(()=>{}); }
 
+
+
     const questions = [
     // ANALYTICAL (8)
     { id:1, mod:"ANALYTICAL", text:"Closeness of a measured value to the true value is:", options:["Precision","Accuracy","Linearity","Selectivity"], correct:"Accuracy", explanation:"Accuracy represents the closeness of a measurement to the true or accepted value.", price:50, rent:20 },
@@ -104,8 +106,8 @@
     { id:3, mod:"ANALYTICAL", text:"A primary standard must be:", options:["Hygroscopic","Highly pure and stable","Liquid","Volatile"], correct:"Highly pure and stable", explanation:"Primary standards must be stable and highly pure to ensure accurate concentration calculations.", price:50, rent:20 },
     { id:4, mod:"ANALYTICAL", text:"Accuracy is usually expressed as:", options:["Standard Deviation","Percent Error","Variance","Range"], correct:"Percent Error", explanation:"Percent error measures the relative difference between the experimental and true value.", price:50, rent:20 },
     { id:5, mod:"ANALYTICAL", text:"Precision is usually expressed as:", options:["Percent Error","Relative Standard Deviation (RSD)","Mean","Sensitivity"], correct:"Relative Standard Deviation (RSD)", explanation:"RSD represents the spread of data relative to the mean.", price:50, rent:20 },
-    { id:6, mod:"ANALYTICAL", text:"Difference between measured and true value with bias:", options:["Random Error","Systematic Error","Precision","Variance"], correct:"Systematic Error", explanation:"Systematic errors cause consistent bias in a specific direction.", price:60, rent:25 },
-    { id:7, mod:"ANALYTICAL", text:"Error causing data to scatter around:", options:["Systematic Error","Random Error","Constant Error","Blunder"], correct:"Random Error", explanation:"Random errors are unpredictable and cause data to scatter around the mean.", price:60, rent:25 },
+    { id:6, mod:"ANALYTICAL", text:"Difference between measured and true value:", options:["Random Error","Systematic Error","Precision","Variance"], correct:"Systematic Error", explanation:"Systematic errors cause consistent bias in a specific direction.", price:60, rent:25 },
+    { id:7, mod:"ANALYTICAL", text:"Error causing data to scatter symmetrically:", options:["Systematic Error","Random Error","Constant Error","Blunder"], correct:"Random Error", explanation:"Random errors are unpredictable and cause data to scatter around the mean.", price:60, rent:25 },
     { id:8, mod:"ANALYTICAL", text:"Smallest amount an instrument can detect:", options:["Accuracy","Limit of Detection (LOD)","Precision","Sensitivity"], correct:"Limit of Detection (LOD)", explanation:"LOD is the lowest concentration level that can be reliably distinguished from background noise.", price:70, rent:30 },
 
     // TITRATIONS (8)
@@ -156,9 +158,24 @@
     { id:45, mod:"BONDING", text:"Bond order for N<sub>2</sub> in MO theory?", options:["1.0","2.0","3.0","2.5"], correct:"3.0", explanation:"N2 contains a triple bond, resulting in a bond order of 3.", price:100, rent:40 },
     { id:46, mod:"BONDING", text:"Hybridization of C in Ethyne (C<sub>2</sub>H<sub>2</sub>)?", options:["sp","sp<sup>2</sup>","sp<sup>3</sup>","dsp<sup>2</sup>"], correct:"sp", explanation:"A triple bond requires linear geometry and sp hybridization.", price:80, rent:30 },
     { id:47, mod:"BONDING", text:"A sigma bond (σ) is formed by ___ overlap:", options:["Side-to-side","End-to-end","Parallel","Perpendicular"], correct:"End-to-end", explanation:"Sigma bonds are formed by direct head-on overlap.", price:100, rent:40 },
-    { id:48, mod:"BONDING", text:"A pi bond (π) is formed by ___ overlap:", options:["End-to-end","Side-to-side","Axial","Direct"], correct:"Side-to-side", explanation:"Pi bonds are formed by the parallel overlap of p-orbitals.", price:100, rent:40 }
+    { id:48, mod:"BONDING", text:"A pi bond (π) is formed by ___ overlap:", options:["End-to-end","Side-to-side","Axial","Direct"], correct:"Side-to-side", explanation:"Pi bonds are formed by the parallel overlap of p-orbitals.", price:100, rent:40 },
+
+    // PERIODIC (12)
+    { id:49, mod:"PERIODIC", text:"Who is father of the modern periodic table?", options:["Newlands","Mendeleev","Moseley","Dobereiner"], correct:"Mendeleev", explanation:"Mendeleev arranged elements systematically and predicted undiscovered ones.", price:50, rent:20 },
+    { id:50, mod:"PERIODIC", text:"Basis of Mendeleev’s arrangement?", options:["Atomic #","Atomic mass","Electron config","Valency"], correct:"Atomic mass", explanation:"Mendeleev arranged elements in order of increasing atomic mass.", price:50, rent:20 },
+    { id:51, mod:"PERIODIC", text:"Who proposed the Law of Octaves?", options:["Dobereiner","Mendeleev","Newlands","Moseley"], correct:"Newlands", explanation:"Newlands observed properties repeat every 8th element.", price:50, rent:20 },
+    { id:52, mod:"PERIODIC", text:"Who discovered the concept of triads?", options:["Dobereiner","Dalton","Bohr","Rutherford"], correct:"Dobereiner", explanation:"Dobereiner grouped elements in sets of three with related masses.", price:50, rent:20 },
+    { id:53, mod:"PERIODIC", text:"Which halogen has highest electronegativity?", options:["Cl","Br","F","I"], correct:"F", explanation:"Fluorine is the smallest halogen, pulling electrons strongest.", price:60, rent:25 },
+    { id:54, mod:"PERIODIC", text:"Highest ionization energy element?", options:["Na","Mg","Al","Ar"], correct:"Ar", explanation:"Argon has a stable full shell, resisting electron removal.", price:70, rent:30 },
+    { id:55, mod:"PERIODIC", text:"Largest atomic radius?", options:["Na","Mg","Al","Si"], correct:"Na", explanation:"Atomic radius decreases across Period 3 due to nuclear charge.", price:60, rent:25 },
+    { id:56, mod:"PERIODIC", text:"Lowest electron affinity?", options:["F","Cl","Br","I"], correct:"I", explanation:"Electron affinity decreases as size increases down the group.", price:60, rent:25 },
+    { id:57, mod:"PERIODIC", text:"Strongest metallic character group?", options:["Group 1","Group 2","Group 17","Group 18"], correct:"Group 1", explanation:"Group 1 loses electrons most easily.", price:50, rent:20 },
+    { id:58, mod:"PERIODIC", text:"Lowest ionization energy?", options:["Metals","Non-metals","Noble gases","Halogens"], correct:"Metals", explanation:"Metals lose electrons easily.", price:50, rent:20 },
+    { id:59, mod:"PERIODIC", text:"Greatest shielding effect?", options:["Li","Na","K","Rb"], correct:"Rb", explanation:"Rubidium has more shells, increasing shielding and weakening outer attraction.", price:70, rent:30 },
+    { id:60, mod:"PERIODIC", text:"Increasing atomic radius (Na, Mg, Al):", options:["Al < Mg < Na","Na < Mg < Al","Mg < Al < Na","Al < Na < Mg"], correct:"Al < Mg < Na", explanation:"Radius decreases left-to-right across the period.", price:60, rent:25 }
 ];
-const tileNames = ["GO", "ANALYTICAL", "BONDING", "AUDIT", "TITRATIONS", "VSEPR", "CONC.", "TITRATIONS", "ACID-BASE", "AUDIT", "ACID-BASE", "TITRATIONS", "LAB BONUS", "ANALYTICAL", "VSEPR", "CONC.", "AUDIT", "CONC.", "BONDING", "ACID-BASE", "BONDING", "VSEPR"];
+   
+const tileNames = ["GO", "ANALYTICAL", "BONDING", "PERIODIC", "TITRATIONS", "VSEPR", "CONC.", "TITRATIONS", "ACID-BASE", "AUDIT", "ACID-BASE", "TITRATIONS", "LAB BONUS", "ANALYTICAL", "VSEPR", "CONC.", "AUDIT", "CONC.", "BONDING", "ACID-BASE", "BONDING", "VSEPR"];
     const ownerCols = ["#6c5ce7", "#00d2d3", "#e67e22", "#ff9ff3"];
     let players = [], turn = 0, rolling = false, owners = {}, chars = [{id:0, icon:'🐱', n:'CAT-ALYST', a:false},{id:1, icon:'🐶', n:'DOG-MA', a:false},{id:2, icon:'🦊', n:'FOX-PHATE', a:false},{id:3, icon:'🐰', n:'BUN-SEN', a:false}];
     let usedQsGlobal = [];
